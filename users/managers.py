@@ -1,4 +1,4 @@
-from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import BaseUserManager, Group, GroupManager
 
 class UserManager(BaseUserManager):
 

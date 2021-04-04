@@ -8,16 +8,16 @@ class UserAdmin(UserAdmin):
     form = UserChangeForm
     model = User
     list_display = ["username", "email"]
-    list_filter = ["is_staff", "is_active", "is_superuser"]
-    filter_horizontal = []
+    list_filter = ["is_staff", "is_active", "is_superuser", "groups"]
+    # filter_horizontal = []
     fieldsets = (
-        (None, {'fields': ('email', 'username', 'password')}),
+        (None, {'fields': ('email', 'username', 'password', 'groups')}),
         ('Permissions', {'fields': ('is_staff', 'is_active')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'username', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('email', 'username', 'password1', 'password2', 'is_staff', 'is_active', 'groups')}
         ),
     )
     search_fields = ["username", "email"] 
