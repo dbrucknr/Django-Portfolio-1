@@ -11,13 +11,13 @@ class UserAdmin(UserAdmin):
     list_filter = ["is_staff", "is_active", "is_superuser"]
     filter_horizontal = []
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
+        (None, {'fields': ('email', 'username', 'password')}),
         ('Permissions', {'fields': ('is_staff', 'is_active')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('email', 'username', 'password1', 'password2', 'is_staff', 'is_active')}
         ),
     )
     search_fields = ["username", "email"] 
