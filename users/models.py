@@ -1,8 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from users.managers import UserManager
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name="Email", max_length=255, unique=True)
     username = models.CharField(max_length=60, unique=True)
     date_joined = models.DateTimeField(verbose_name="Date Joined", auto_now_add=True)
