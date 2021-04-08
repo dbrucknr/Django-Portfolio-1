@@ -66,7 +66,7 @@ export default {
             method: "get",
             params: {}
           }).then((response) => {
-            console.log(response)
+            // console.log('Is there a user object here:', response)
             this.setAuthUser({ user: response.data, isAuthenticated: true })
           })
         })

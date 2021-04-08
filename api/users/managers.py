@@ -22,14 +22,20 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, username, password):
-
+        group = Group.objects.get_or_create(name='Supers')
         user = self.create_user(
             email = self.normalize_email(email),
             password = password,
-            username = username
+            username = username,
+            groups=None,
+            user_permissions=None
         )
         user.is_admin = True
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
+
+        user_saved = get_user_model().objects.get(username=username)
+        new_group = Group.objects.get(name='Supers')
+        user_saved.groups.add(new_group)
         return user
