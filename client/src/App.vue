@@ -7,9 +7,21 @@
 
 <script>
   import NavigationBar from './components/NavigationBar'
+  import { mapMutations, mapState } from 'vuex'
   export default {
     components: {
       NavigationBar
+    },
+    created() {
+      this.initializeAuth();
+    },
+    computed: {
+      ...mapState({
+        authenticated: 'isAuthenticated'
+      })
+    },
+    methods: {
+      ...mapMutations(['initializeAuth'])
     }
   }
 </script>

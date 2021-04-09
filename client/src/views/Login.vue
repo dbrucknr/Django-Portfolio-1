@@ -1,7 +1,8 @@
 <template>
   <div>
     <b-container fluid="sm">
-      <b-card bg-variant="light">
+      <h2>Welcome</h2>
+      <b-card bg-variant="light" class="mb-3">
           <b-form-group
             label="Email"
             label-cols-lg="3"
@@ -16,6 +17,8 @@
           </b-form-group>
           <b-button @click="authenticate" variant="primary">Log In</b-button>
       </b-card>
+
+      <b-button variant="outline-success">Create an Account</b-button>
     </b-container>
   </div>
 </template>

@@ -10,9 +10,16 @@ export default new Vuex.Store({
     token: localStorage.getItem('token')
   },
   mutations: {
-      setAuthUser(state, { user, isAuthenticated }) {
-        Vue.set(state, 'user', user)
-        Vue.set(state, 'isAuthenticated', isAuthenticated)
+    initializeAuth(state) {
+      if (localStorage.getItem('token')) {
+        console.log('token found')
+        state.token = localStorage.getItem('token');
+        state.isAuthenticated = true;
+      }
+    },
+    setAuthUser(state, { user, isAuthenticated }) {
+      Vue.set(state, 'user', user)
+      Vue.set(state, 'isAuthenticated', isAuthenticated)
     },
     updateToken(state, newToken) {
         // TODO: For security purposes, take localStorage out of the project.
