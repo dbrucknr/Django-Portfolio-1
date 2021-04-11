@@ -19,13 +19,14 @@
       </b-card>
 
       <b-button variant="outline-success">Create an Account</b-button>
+      <b-button @click="getCurrentUserTest" variant="primary">Get Current User (Remove)</b-button>
     </b-container>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
-import { mapMutations } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
 
 export default {
   name: 'Login',
@@ -37,6 +38,30 @@ export default {
   },
   methods: {
     ...mapMutations(['updateToken', 'setAuthUser']),
+    ...mapGetters(['getToken']),
+    getCurrentUserTest() {
+          const base = {
+            baseURL: 'http://127.0.0.1:8000/api/current_user/',
+            headers: {
+              Authorization: `Bearer ${this.$store.state.token}`,
+              'Content-Type': 'application/json'
+            },
+            xhrFields: {
+                withCredentials: true
+            }
+          };
+          const axiosInstance = axios.create(base);
+          axiosInstance({
+            url: "/",
+            method: "get",
+            params: { 'token': this.$store.state.token }
+          }).then((response) => {
+            console.log('Is there a user object here:', response)
+            // this.setAuthUser({ user: response.data, isAuthenticated: true })
+          })
+      // axios.get('http://127.0.0.1:8000/api/current_user/', payload)
+      //   .then((response) => console.log(response))
+    },
     authenticate() {
       const payload = {
         email: this.email,
