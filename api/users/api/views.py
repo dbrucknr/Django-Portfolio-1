@@ -1,5 +1,9 @@
+import jwt
+
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from rest_framework import generics, viewsets
+from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from users.api.serializers import UserSerializer, LogInSerializer
@@ -14,4 +18,15 @@ class SignUpView(generics.CreateAPIView):
 
 class LogInView(TokenObtainPairView):
     serializer_class = LogInSerializer
+
+class CurrentUserView(generics.GenericAPIView):
+    # This Works - I could probably get rid of the returned user data in my TokenObtainPair Serializer in the overwritten validate class
+    def get(self, request):
+        token = request.GET.get('token')
+        User = get_user_model()
+        payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=['HS256'])
+        current_user = User.objects.get(id=payload['id'])
+        serializer = UserSerializer(current_user)
+        return Response(serializer.data)
+
     
