@@ -10,7 +10,6 @@ export default new Vuex.Store({
     authentication
   },
   state: {
-    isAuthenticated: false
   },
   mutations: {
   },
