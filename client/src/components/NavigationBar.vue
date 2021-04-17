@@ -12,9 +12,14 @@
                     <router-link to="/about">About</router-link>
                 </b-nav-item>
             </b-navbar-nav>
-            <b-navbar-nav class="ml-auto">
+            <b-navbar-nav v-show="!authStatus" class="ml-auto">
                 <b-nav-item right>
                     <router-link to="/login">Login</router-link>
+                </b-nav-item>
+            </b-navbar-nav>
+            <b-navbar-nav v-show="authStatus" class="ml-auto">
+                <b-nav-item right>
+                    <a @click="logout">Logout</a>
                 </b-nav-item>
             </b-navbar-nav>
         </b-navbar>
@@ -22,7 +27,18 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
-    name: "NavigationBar"
+    name: "NavigationBar",
+    props: {
+        authStatus: Boolean
+    },
+    methods: {
+        ...mapActions('authentication', ['logout']),
+        // logout() {
+
+        // }
+    }
 }
 </script>

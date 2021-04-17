@@ -33,36 +33,31 @@ export const authentication = {
                     commit('registerFailure');
                     return Promise.reject(error);
                 }
-            )
+            );
         },
-        initializeAuthAction() {
+        initializeAuthAction({ commit }) {
             const user = JSON.parse(localStorage.getItem('user'));
+            console.log(user)
             AuthenticationService.verifyUser(user).then(
                 response => {
-                    console.log('Response:', response);
+                    console.log('User Token Valid...Response:', response);
+                    // localStorage.setItem('user', JSON.stringify(user))
+                    commit('setAuthStatus', true);
                 },
                 error => {
                     console.log('Error:', error);
+                    localStorage.removeItem('user');
+                    commit('setAuthStatus', false)
                     AuthenticationService.refreshToken(user).then(
-                        AuthenticationService.verifyUser(user)
+                        AuthenticationService.verifyUser(user),
+                        commit('setAuthStatus', true)
                         // response => { 
                         //     console.log('Checking refreshToken', response);
                              
                         // }
                     )
                 }
-            )
-
-            // if (user) {
-            //     commit('setAuthStatus', true);
-            // } else {
-            //     AuthenticationService.verifyUser
-            // }
-            // if (localStorage.getItem('user')) {
-            //   state.isAuthenticated = true;
-            // } else {
-            //     state.isAuthenticated = false;
-            // }
+            );
         }
     },
     mutations: {
@@ -85,6 +80,7 @@ export const authentication = {
             state.isAuthenticated = false;
         },
         setAuthStatus(state, payload) {
+            console.log('setAuthStatus', payload)
             state.isAuthenticated = payload;
         },
         initializeAuth(state) {
@@ -94,6 +90,14 @@ export const authentication = {
             } else {
                 state.isAuthenticated = false;
             }
+        }
+    },
+    getters: {
+        user(state) {
+            return state.user
+        },
+        isAuthenticated(state) {
+            return state.isAuthenticated
         }
     }
 }

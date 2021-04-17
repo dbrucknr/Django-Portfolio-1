@@ -1,5 +1,7 @@
 import axios from 'axios';
 import authenticationHeaders from './auth-header';
+import router from '../router/index';
+
 const API_URL = 'http://localhost:8000/api/';
 
 class AuthenticationService {
@@ -20,7 +22,8 @@ class AuthenticationService {
     }
 
     logout() {
-        localStorage.removeItem('user')
+        localStorage.removeItem('user');
+        router.replace('/login');
     }
 
     register(user) {
@@ -32,15 +35,21 @@ class AuthenticationService {
         });
     }
 
-    verifyUser() {
+    verifyUser(user) {
         // console.log(user.access)
         return axios.get(API_URL + 'current_user/', {
             headers: authenticationHeaders()
         })
-        .then(response => {
+        .then(
+        response => {
             console.log('Service -', response)
-            localStorage.setItem('user', JSON.stringify(response.data));
-        })
+            localStorage.setItem('user', JSON.stringify(user));
+        },
+        error => {
+            console.log('Error with verifyUser', error);
+            localStorage.removeItem('user')
+        }
+        )
     }
 
     refreshToken(user) {

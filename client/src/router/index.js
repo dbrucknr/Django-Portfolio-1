@@ -2,8 +2,6 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 
-import store from '../store/index'
-
 Vue.use(VueRouter)
 
 const routes = [
@@ -16,14 +14,6 @@ const routes = [
     path: '/about',
     name: 'About',
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
-    beforeEnter(to, from, next) {
-      console.log(store.state.authentication.isAuthenticated)
-      if (store.state.authentication.isAuthenticated) {
-        next()
-      } else {
-        next('/login')
-      }
-    }
   },
   {
     path: '/login',
@@ -34,6 +24,18 @@ const routes = [
 
 const router = new VueRouter({
   routes
-})
+});
+
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/login', '/register'];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = JSON.parse(localStorage.getItem('user')) != null;
+
+  if (authRequired && !loggedIn) {
+    next('/login');
+  } else {
+    next();
+  }
+});
 
 export default router

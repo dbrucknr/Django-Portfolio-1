@@ -1,23 +1,23 @@
 <template>
   <div id="app">
-    <NavigationBar />
+    <NavigationBar :authStatus="isAuthenticated" />
     <router-view />
   </div>
 </template>
 
 <script>
   import NavigationBar from './components/NavigationBar'
-  import { mapState, mapMutations, mapActions } from 'vuex'
+  import { mapMutations, mapActions, mapGetters } from 'vuex'
   export default {
     components: {
       NavigationBar
     },
     created() {
-      this.initializeAuth();
+      // this.initializeAuth();
       this.initializeAuthAction()
     },
     computed: {
-      ...mapState('authentication', ['isAuthenticated'])
+      ...mapGetters('authentication', ['isAuthenticated'])
     },
     methods: {
       ...mapMutations('authentication', ['initializeAuth']),

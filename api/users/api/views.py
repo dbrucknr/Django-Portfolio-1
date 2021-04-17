@@ -29,6 +29,7 @@ class CurrentUserView(generics.GenericAPIView):
         payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=['HS256'])
         print(payload)
         current_user = User.objects.get(id=payload['id'])
+        print('current_user', current_user)
         serializer = UserSerializer(current_user)
         return Response(serializer.data)
 
