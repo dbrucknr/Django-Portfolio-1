@@ -22,9 +22,12 @@ class LogInView(TokenObtainPairView):
 class CurrentUserView(generics.GenericAPIView):
     # This Works - I could probably get rid of the returned user data in my TokenObtainPair Serializer in the overwritten validate class
     def get(self, request):
-        token = request.GET.get('token')
+        print('test', request.META.get('HTTP_AUTHORIZATION').split())
+        # token = request.GET.get('token')
+        token = request.META.get('HTTP_AUTHORIZATION').split()[1]
         User = get_user_model()
         payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=['HS256'])
+        print(payload)
         current_user = User.objects.get(id=payload['id'])
         serializer = UserSerializer(current_user)
         return Response(serializer.data)

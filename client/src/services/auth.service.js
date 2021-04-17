@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import authenticationHeaders from './auth-header';
 const API_URL = 'http://localhost:8000/api/';
 
 class AuthenticationService {
@@ -32,6 +32,28 @@ class AuthenticationService {
         });
     }
 
+    verifyUser() {
+        // console.log(user.access)
+        return axios.get(API_URL + 'current_user/', {
+            headers: authenticationHeaders()
+        })
+        .then(response => {
+            console.log('Service -', response)
+            localStorage.setItem('user', JSON.stringify(response.data));
+        })
+    }
+
+    refreshToken(user) {
+        return axios.post(API_URL + 'token/refresh/', {
+            refresh: user.refresh
+        })
+        .then(
+            response => {
+                user.access = response.data.access
+                localStorage.setItem('user', JSON.stringify(user));
+            }
+        )
+    }    
 }
 
 export default new AuthenticationService();

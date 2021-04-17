@@ -34,6 +34,35 @@ export const authentication = {
                     return Promise.reject(error);
                 }
             )
+        },
+        initializeAuthAction() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            AuthenticationService.verifyUser(user).then(
+                response => {
+                    console.log('Response:', response);
+                },
+                error => {
+                    console.log('Error:', error);
+                    AuthenticationService.refreshToken(user).then(
+                        AuthenticationService.verifyUser(user)
+                        // response => { 
+                        //     console.log('Checking refreshToken', response);
+                             
+                        // }
+                    )
+                }
+            )
+
+            // if (user) {
+            //     commit('setAuthStatus', true);
+            // } else {
+            //     AuthenticationService.verifyUser
+            // }
+            // if (localStorage.getItem('user')) {
+            //   state.isAuthenticated = true;
+            // } else {
+            //     state.isAuthenticated = false;
+            // }
         }
     },
     mutations: {
@@ -55,12 +84,16 @@ export const authentication = {
         registerFailure(state) {
             state.isAuthenticated = false;
         },
+        setAuthStatus(state, payload) {
+            state.isAuthenticated = payload;
+        },
         initializeAuth(state) {
             if (localStorage.getItem('user')) {
+                // console.log(localStorage.getItem('user'))
               state.isAuthenticated = true;
             } else {
                 state.isAuthenticated = false;
             }
-          }
+        }
     }
 }
