@@ -1,7 +1,7 @@
 import axios from 'axios';
 import authenticationHeaders from './auth-header';
 import router from '../router/index';
-
+import { isValidJwt } from '../utils/validJWT';
 const API_URL = 'http://localhost:8000/api/';
 
 class AuthenticationService {
@@ -14,7 +14,8 @@ class AuthenticationService {
         .then(response => {
             if (response.data.access) {
                 // Use localStorage to save JWT - TODO: Remove / explore alternate options due to security concerns
-                console.log(JSON.stringify(response.data))
+                console.log(JSON.stringify(response.data));
+                console.log('Valid JWT?', isValidJwt(response.data.access))
                 localStorage.setItem('user', JSON.stringify(response.data));
             }
             return response.data;
@@ -46,8 +47,10 @@ class AuthenticationService {
             localStorage.setItem('user', JSON.stringify(user));
         },
         error => {
+            // I could possibly create a function that tries to refresh, await the response, then redirect...
             console.log('Error with verifyUser', error);
-            localStorage.removeItem('user')
+            localStorage.removeItem('user');
+            router.replace('/login');
         }
         )
     }

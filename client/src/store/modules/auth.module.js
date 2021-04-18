@@ -1,4 +1,6 @@
+import router from '../../router';
 import AuthenticationService from '../../services/auth.service';
+import { isValidJwt } from '../../utils/validJWT';
 
 export const authentication = {
     namespaced: true,
@@ -16,8 +18,7 @@ export const authentication = {
                 error => {
                     commit('loginFailure');
                     return Promise.reject(error);
-                }
-            );
+                });
         },
         logout({ commit }) {
             AuthenticationService.logout();
@@ -32,32 +33,65 @@ export const authentication = {
                 error => {
                     commit('registerFailure');
                     return Promise.reject(error);
-                }
-            );
+                });
         },
-        initializeAuthAction({ commit }) {
-            const user = JSON.parse(localStorage.getItem('user'));
-            console.log(user)
-            AuthenticationService.verifyUser(user).then(
+        verifyUserToken({ commit, dispatch }, user) {
+            // Called on app load / page load from initialize auth action
+            // Attempts to verify a user when a token is discovered, but is invalid (expired)
+            return AuthenticationService.verifyUser(user).then(
                 response => {
+                    // If the user is returned from the API as a valid user - update state / local storage
                     console.log('User Token Valid...Response:', response);
-                    // localStorage.setItem('user', JSON.stringify(user))
+                    localStorage.setItem('user', JSON.stringify(user))
                     commit('setAuthStatus', true);
                 },
                 error => {
+                    // If the user is not validated by the API - dispatch a token refresh command
                     console.log('Error:', error);
+                    dispatch('refreshUserToken', user)
+                    // localStorage.removeItem('user');
+                    // commit('setAuthStatus', false);
+                })
+        },
+        refreshUserToken({ commit }, user) {
+            // Called when Authentication services recieves an error response from backend 
+            AuthenticationService.refreshToken(user).then(
+                response => {
+                    // if no error is detected - set auth status and local storage
+                    console.log('Checking refreshToken', response);
+                    commit('setAuthStatus', true);
+                    localStorage.setItem('user', JSON.stringify(user))
+                },
+                error => {
+                    // on error, clear data and set state(s)
+                    // Send user to login page
+                    console.log(error) 
                     localStorage.removeItem('user');
-                    commit('setAuthStatus', false)
-                    AuthenticationService.refreshToken(user).then(
-                        AuthenticationService.verifyUser(user),
-                        commit('setAuthStatus', true)
-                        // response => { 
-                        //     console.log('Checking refreshToken', response);
-                             
-                        // }
-                    )
+                    commit('setAuthStatus', false);
+                    router.replace('/login');
                 }
-            );
+            )
+        },
+        initializeAuthAction({ commit, dispatch }) {
+            // Check for user object in local storage
+            const user = JSON.parse(localStorage.getItem('user'));
+            // If there is no user object - set Auth to false
+            if (!user) {
+                commit('setAuthStatus', false);
+                router.replace('/login');
+                return
+            }
+            // If there is a user object - examine the token
+            const expirationCheck = isValidJwt(user.access);
+            console.log('valid token? - ', expirationCheck)
+            // If the token fails to validate dispatch action that attempts to verify user:
+            if (!expirationCheck) {
+                dispatch('verifyUserToken', user);
+                return
+            }
+            // Otherwise set the data once more in localstorage and update auth status
+            commit('setAuthStatus', true);
+            localStorage.setItem('user', JSON.stringify(user));
         }
     },
     mutations: {
