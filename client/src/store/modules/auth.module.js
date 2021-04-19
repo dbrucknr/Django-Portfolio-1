@@ -35,43 +35,6 @@ export const authentication = {
                     return Promise.reject(error);
                 });
         },
-        verifyUserToken({ commit, dispatch }, user) {
-            // Called on app load / page load from initialize auth action
-            // Attempts to verify a user when a token is discovered, but is invalid (expired)
-            return AuthenticationService.verifyUser(user).then(
-                response => {
-                    // If the user is returned from the API as a valid user - update state / local storage
-                    console.log('User Token Valid...Response:', response);
-                    localStorage.setItem('user', JSON.stringify(user))
-                    commit('setAuthStatus', true);
-                },
-                error => {
-                    // If the user is not validated by the API - dispatch a token refresh command
-                    console.log('Error:', error);
-                    dispatch('refreshUserToken', user)
-                    // localStorage.removeItem('user');
-                    // commit('setAuthStatus', false);
-                })
-        },
-        refreshUserToken({ commit }, user) {
-            // Called when Authentication services recieves an error response from backend 
-            AuthenticationService.refreshToken(user).then(
-                response => {
-                    // if no error is detected - set auth status and local storage
-                    console.log('Checking refreshToken', response);
-                    commit('setAuthStatus', true);
-                    localStorage.setItem('user', JSON.stringify(user))
-                },
-                error => {
-                    // on error, clear data and set state(s)
-                    // Send user to login page
-                    console.log(error) 
-                    localStorage.removeItem('user');
-                    commit('setAuthStatus', false);
-                    router.replace('/login');
-                }
-            )
-        },
         initializeAuthAction({ commit, dispatch }) {
             // Check for user object in local storage
             const user = JSON.parse(localStorage.getItem('user'));
@@ -92,6 +55,43 @@ export const authentication = {
             // Otherwise set the data once more in localstorage and update auth status
             commit('setAuthStatus', true);
             localStorage.setItem('user', JSON.stringify(user));
+        },
+        verifyUserToken({ commit, dispatch }, user) {
+            // Called on app load / page load from initialize auth action
+            // Attempts to verify a user when a token is discovered, but is invalid (expired)
+            return AuthenticationService.verifyUser(user).then(
+                response => {
+                    // If the user is returned from the API as a valid user - update state / local storage
+                    console.log('User Token Valid...Response:', response);
+                    localStorage.setItem('user', JSON.stringify(user))
+                    commit('setAuthStatus', true);
+                },
+                error => {
+                    // If the user is not validated by the API - dispatch a token refresh command
+                    console.log('Error:', error);
+                    dispatch('refreshUserToken', user)
+                    // localStorage.removeItem('user');
+                    // commit('setAuthStatus', false);
+                })
+        },
+        refreshUserToken({ commit }, user) {
+            // Called when verifyUserToken's Authentication services recieves an error response from backend 
+            return AuthenticationService.refreshToken(user).then(
+                response => {
+                    // if no error is detected - set auth status and local storage
+                    console.log('Checking refreshToken', response);
+                    commit('setAuthStatus', true);
+                    localStorage.setItem('user', JSON.stringify(user))
+                },
+                error => {
+                    // on error, clear data and set state(s)
+                    // Send user to login page
+                    console.log(error) 
+                    localStorage.removeItem('user');
+                    commit('setAuthStatus', false);
+                    router.replace('/login');
+                }
+            )
         }
     },
     mutations: {
@@ -116,14 +116,6 @@ export const authentication = {
         setAuthStatus(state, payload) {
             console.log('setAuthStatus', payload)
             state.isAuthenticated = payload;
-        },
-        initializeAuth(state) {
-            if (localStorage.getItem('user')) {
-                // console.log(localStorage.getItem('user'))
-              state.isAuthenticated = true;
-            } else {
-                state.isAuthenticated = false;
-            }
         }
     },
     getters: {

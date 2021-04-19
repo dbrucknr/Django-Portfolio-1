@@ -14,7 +14,7 @@ class AuthenticationService {
         .then(response => {
             if (response.data.access) {
                 // Use localStorage to save JWT - TODO: Remove / explore alternate options due to security concerns
-                console.log(JSON.stringify(response.data));
+                // console.log(JSON.stringify(response.data));
                 console.log('Valid JWT?', isValidJwt(response.data.access))
                 localStorage.setItem('user', JSON.stringify(response.data));
             }
@@ -42,16 +42,16 @@ class AuthenticationService {
             headers: authenticationHeaders()
         })
         .then(
-        response => {
-            console.log('Service -', response)
-            localStorage.setItem('user', JSON.stringify(user));
-        },
-        error => {
-            // I could possibly create a function that tries to refresh, await the response, then redirect...
-            console.log('Error with verifyUser', error);
-            localStorage.removeItem('user');
-            router.replace('/login');
-        }
+            response => {
+                console.log('Service -', response)
+                localStorage.setItem('user', JSON.stringify(user));
+            },
+            error => {
+                // I could possibly create a function that tries to refresh, await the response, then redirect...
+                console.log('Error with verifyUser', error);
+                localStorage.removeItem('user');
+                router.replace('/login');
+            }
         )
     }
 

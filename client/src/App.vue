@@ -13,14 +13,12 @@
       NavigationBar
     },
     created() {
-      // this.initializeAuth();
-      this.initializeAuthAction()
+      this.initializeAuthAction();
     },
     computed: {
       ...mapGetters('authentication', ['isAuthenticated'])
     },
     methods: {
-      ...mapMutations('authentication', ['initializeAuth']),
       ...mapActions('authentication', ['initializeAuthAction'])
     }
   }
