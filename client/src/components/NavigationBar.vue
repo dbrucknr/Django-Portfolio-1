@@ -3,7 +3,7 @@
         <b-navbar toggleable="sm" type="light" variant="light" class="mb-5">
             <b-navbar-toggle target="nav-text-collapse"></b-navbar-toggle>
 
-            <b-navbar-brand>BootstrapVue</b-navbar-brand>
+            <b-navbar-brand>Nav</b-navbar-brand>
             <b-navbar-nav>
                 <b-nav-item>
                     <router-link to="/">Home</router-link>

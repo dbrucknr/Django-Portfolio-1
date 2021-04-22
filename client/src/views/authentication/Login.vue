@@ -18,7 +18,7 @@
           <b-button @click="authenticate" variant="primary">Log In</b-button>
       </b-card>
 
-      <b-button variant="outline-success">Create an Account</b-button>
+      <b-button variant="outline-success" @click="registrationRedirect">Create an Account</b-button>
     </b-container>
   </div>
 </template>
@@ -50,6 +50,9 @@ export default {
           }
         )
       }
+    },
+    registrationRedirect() {
+      this.$router.push('/register');
     }
   }
 }

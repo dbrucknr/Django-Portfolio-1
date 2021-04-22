@@ -31,8 +31,10 @@ class AuthenticationService {
         return axios.post(API_URL + 'sign_up/', {
             email: user.email,
             username: user.username,
-            password1: user.password,
-            password2: user.verifyPassword
+            password1: user.password1,
+            password2: user.password2,
+            groups: [],
+            user_permissions: []
         });
     }
 
