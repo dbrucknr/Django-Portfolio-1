@@ -5,6 +5,9 @@ https://github.com/SteinOveHelset/djackets_vue/blob/master/src/App.vue
 https://bezkoder.com/vue-js-crud-app/ 
 https://bezkoder.com/django-vue-js-rest-framework/ 
 
+Consider for refactoring auto-login:
+https://blog.sqreen.com/authentication-best-practices-vue/
+
 https://bootstrap-vue.org/ 
 
 https://stackoverflow.com/questions/54544978/customizing-jwt-response-from-django-rest-framework-simplejwt 

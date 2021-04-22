@@ -3,7 +3,7 @@ from django.db import models, transaction
 from django.contrib.auth import get_user_model
 class UserManager(BaseUserManager):
 
-    def create_user(self, email, username, groups, user_permissions, password=None):
+    def create_user(self, email, username, groups=None, user_permissions=None, password=None):
         if not email:
             raise ValueError("Users must have an email address")
         if not username:

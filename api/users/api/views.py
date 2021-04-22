@@ -13,6 +13,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 class SignUpView(generics.CreateAPIView):
+    permission_classes = []
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
 
