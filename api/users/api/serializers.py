@@ -7,6 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
 
     def validate(self, data):
+        print('In validate')
         if data['password1'] != data['password2']:
             raise serializers.ValidationError('Passwords must match.')
         return data
@@ -21,9 +22,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        exclude = ["id", "is_admin", "is_active", "is_staff", "is_superuser", "password"]
+        exclude = ["id", "is_admin", "is_active", "is_staff", "is_superuser", "password", "groups", "user_permissions"]
 
 class LogInSerializer(TokenObtainPairSerializer):
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
@@ -32,3 +34,13 @@ class LogInSerializer(TokenObtainPairSerializer):
             if key != 'id':
                 token[key] = value
         return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        refresh = self.get_token(self.user)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+        data['username'] = self.user.username
+        data['email'] = self.user.email
+        data['groups'] = self.user.groups.values_list('name', flat=True)
+        return data
