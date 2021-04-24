@@ -21,3 +21,7 @@ https://testdriven.io/blog/drf-serializers/
 https://testdriven.io/courses/taxi-react/http-requests-log-in-out/
 https://simpleisbetterthancomplex.com/tutorial/2018/12/19/how-to-use-jwt-authentication-with-django-rest-framework.html
 https://www.pydanny.com/drf-jwt-axios-vue.html 
+
+
+Channels - user to user example:
+https://stackoverflow.com/questions/39322241/sending-a-message-to-a-single-user-using-django-channels
