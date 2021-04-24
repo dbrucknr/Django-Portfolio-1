@@ -6,6 +6,7 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.models import Group
+from messenger.models import Message
 
 TEST_CHANNEL_LAYERS = {
     'default': {
@@ -32,6 +33,17 @@ def create_user(
     access = AccessToken.for_user(user)
     return user, access
 
+@database_sync_to_async
+def create_message(
+    content="Creating test message",
+    sender=None,
+    receiver=None
+):
+    return Message.objects.create(
+        content=content,
+        sender=sender,
+        receiver=receiver
+    ) 
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
 class TestWebSocket:
@@ -97,3 +109,121 @@ class TestWebSocket:
         response = await communicator.receive_json_from()
         assert response == message
         await communicator.disconnect()
+
+    async def test_send_message(self, settings):
+        """ Tests the creation of message to a sender """
+
+        settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+        user, access = await create_user(
+            'testUser', 'test.user@example.com', 'pAssw0rd'
+        )
+        receiver, access = await create_user(
+            'receiverUser', 'receiver.user@example.com', 'pAssw0rd'
+        )
+        communicator = WebsocketCommunicator(
+            application=application,
+            path=f'/messenger/?token={access}'
+        )
+        connected, _ = await communicator.connect()
+        await communicator.send_json_to({
+            'type': 'create.message',
+            'data': {
+                'content': 'This is a message',
+                'sender': user.id,
+                'receiver': receiver.id
+            },
+        })
+        response = await communicator.receive_json_from()
+        response_data = response.get('data')
+        assert response_data['id'] is not None
+        assert response_data['content'] == 'This is a message'
+        assert response_data['sender']['username'] == user.username
+        assert response_data['receiver']['username'] == receiver.username
+        await communicator.disconnect()
+
+    async def test_receiver_alerted_on_sent_message(self, settings):
+        settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+
+        sender, access = await create_user(
+            'testUser', 'test.user@example.com', 'pAssw0rd'
+        )
+        receiver, _ = await create_user(
+            'receiverUser', 'receiver.user@example.com', 'pAssw0rd'
+        )
+        # Listen to the user's group test channel.
+        channel_layer = get_channel_layer()
+        await channel_layer.group_add(
+            group="user-{}".format(receiver.id),
+            channel='test_channel'
+        )
+
+        communicator = WebsocketCommunicator(
+            application=application,
+            path=f'/messenger/?token={access}'
+        )
+        connected, _ = await communicator.connect()
+        # Send a message.
+        await communicator.send_json_to({
+            'type': 'create.message',
+            'data': {
+                'content': 'This is a message',
+                'sender': sender.id,
+                'receiver': receiver.id
+            },
+        })
+
+        # Receive JSON message from server on test_channel.
+        response = await channel_layer.receive('test_channel')
+        response_data = response.get('data')
+
+        assert response_data['id'] is not None
+        assert response_data['content'] == 'This is a message'
+        assert response_data['sender']['username'] == sender.username
+        assert response_data['receiver']['username'] == receiver.username
+
+        await communicator.disconnect()
+
+    async def test_create_message_group(self, settings):
+
+        settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+        user, access = await create_user(
+            'testUser', 'test.user@example.com', 'pAssw0rd'
+        )
+        receiver, _ = await create_user(
+            'receiverUser', 'receiver.user@example.com', 'pAssw0rd'
+        )
+        communicator = WebsocketCommunicator(
+            application=application,
+            path=f'/messenger/?token={access}'
+        )
+        connected, _ = await communicator.connect()
+
+        # Send a message.
+        await communicator.send_json_to({
+            'type': 'create.message',
+            'data': {
+                'content': 'This is a message',
+                'sender': user.id,
+                'receiver': receiver.id
+            },
+        })
+
+        response = await communicator.receive_json_from()
+        response_data = response.get('data')
+
+        # Send a message to the reciever's group.
+        message = {
+            'type': 'echo.message',
+            'data': 'This is a test message.',
+        }
+        formatted_user_group = "user-{}".format(response_data['receiver']['id'])
+
+        channel_layer = get_channel_layer()
+        await channel_layer.group_send(formatted_user_group, message=message)
+
+        # Receiver receives message.
+        response = await communicator.receive_json_from()
+        assert response == message
+
+        await communicator.disconnect()
+
