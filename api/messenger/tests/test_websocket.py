@@ -183,7 +183,7 @@ class TestWebSocket:
 
         await communicator.disconnect()
 
-    async def test_create_message_group(self, settings):
+    async def test_create_message_thread(self, settings):
 
         settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
         user, access = await create_user(
@@ -227,3 +227,34 @@ class TestWebSocket:
 
         await communicator.disconnect()
 
+    async def test_join_message_thread_on_connect(self, settings):
+        settings.CHANNEL_LAYERS = TEST_CHANNEL_LAYERS
+        sender, access = await create_user(
+            'testUser', 'test.user@example.com', 'pAssw0rd'
+        )
+        receiver, _ = await create_user(
+            'receiverUser', 'receiver.user@example.com', 'pAssw0rd'
+        )
+        new_message = await create_message(sender=sender, receiver=receiver)
+        communicator = WebsocketCommunicator(
+            application=application,
+            # Is this the wrong access??
+            path=f'/messenger/?token={access}'
+        )
+        connected, _ = await communicator.connect()
+        # Send a message to the reciever's group.
+        message = {
+            'type': 'echo.message',
+            'data': 'This is a test message.',
+        }
+        channel_layer = get_channel_layer()
+        print('Sender', sender.id)
+        print('Receiver', receiver.id)
+        await channel_layer.group_send(f'user-{receiver.id}', message=message)
+
+        # Reciever receives message.
+        response = await communicator.receive_json_from()
+        print(response)
+        assert response == message
+
+        await communicator.disconnect()

@@ -4,7 +4,7 @@
     <b-sidebar id="sidebar-right" title="Messenger" right shadow>
       <div>
         <div v-for="(message, index) in messageThread" :key="index">
-          {{ message.data.sender.username }} - {{ message.data.content }}
+          {{ message.sender }}: {{ message.message }}
         </div>
         <input type="text" v-model="messageContent">
         <button @click="sendMessage">Send Test Message</button>
@@ -18,6 +18,9 @@ import MessengerService from '../services/messenger.service'
 import { mapState } from 'vuex'
 export default {
     name: 'Messenger',
+    created() {
+      MessengerService.connect();
+    },
     data() {
       return {
         messageContent: '',
@@ -26,16 +29,15 @@ export default {
     },
     computed: {
       ...mapState('authentication', ['user']),
-      // test() {
-      //   return MessengerService.messageThread()
-      // }
+      getUsername() {
+        return JSON.parse(this.user).username
+      }
     },
     methods: {
       sendMessage() {
         let payload = {
-          sender: "1",
-          receiver: '2',
-          content: this.messageContent
+          'sender': this.getUsername,
+          'content': this.messageContent
         }
         MessengerService.createMessage(payload)
       }
