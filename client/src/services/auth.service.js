@@ -67,7 +67,12 @@ class AuthenticationService {
                 localStorage.setItem('user', JSON.stringify(user));
             }
         )
-    }    
+    } 
+    
+    getAccessToken() {
+        let user = localStorage.getItem('user');
+        return user ? user.access : undefined
+    }
 }
 
 export default new AuthenticationService();
