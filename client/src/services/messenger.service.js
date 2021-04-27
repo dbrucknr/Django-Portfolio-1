@@ -14,7 +14,6 @@ class MessengerService {
     connect() {
         if (!_socket || _socket.closed) {
         const user = JSON.parse(localStorage.getItem('user'));
-        console.lo
         const token = user.access
         _socket = webSocket(`ws://localhost:8000/messenger/?token=${token}`);
         messages = _socket.pipe(share());
@@ -23,7 +22,7 @@ class MessengerService {
     }
 
     createMessage(data) {
-        console.log(data)
+        console.log('createMessage', data)
         this.connect();
         const message = {
             type: 'create.message',

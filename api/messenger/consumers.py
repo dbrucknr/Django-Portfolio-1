@@ -5,17 +5,22 @@ from asgiref.sync import async_to_sync
 import json
 from channels.db import database_sync_to_async
 from messenger.api.serializers import NestedMessageSerializer, MessageSerializer
+# from channels import Group
 class MessageConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
-        self.room_name = 'app'
-        self.room_group_name = 'chat_%s' % self.room_name
-        # Join room group
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-        await self.accept()
+        user = self.scope['user']
+        if user.is_anonymous:
+            await self.close()
+        else:
+            self.room_name = 'app'
+            self.room_group_name = 'chat_%s' % self.room_name
+            # Join room group
+            await self.channel_layer.group_add(
+                self.room_group_name,
+                self.channel_name
+            )
+            await self.accept()
 
     async def disconnect(self, code):
         # Leave room group

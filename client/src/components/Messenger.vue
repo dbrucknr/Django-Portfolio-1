@@ -1,13 +1,41 @@
 <template>
   <div>
-    <b-button v-b-toggle.sidebar-right>Messenger</b-button>
-    <b-sidebar id="sidebar-right" title="Messenger" right shadow>
+    <b-button v-b-toggle.sidebar-backdrop-right>Messenger</b-button>
+    <b-sidebar 
+      id="sidebar-backdrop-right" 
+      title="Messenger"
+      :backdrop-variant="'dark'" 
+      backdrop
+      right 
+      shadow
+    >
       <div>
         <div v-for="(message, index) in messageThread" :key="index">
-          {{ message.sender }}: {{ message.message }}
+          <b-card
+            :border-variant="setMessageColor(message.sender)"
+            :header-bg-variant="setMessageColor(message.sender)"
+            header-text-variant="white"
+            :header="message.sender" 
+            class="mb-2"
+          >
+            <b-card-text>
+              {{ message.message }}
+            </b-card-text>
+           </b-card>
         </div>
-        <input type="text" v-model="messageContent">
-        <button @click="sendMessage">Send Test Message</button>
+        <b-form-group
+          id="message-input"
+        >
+          <b-form-input
+            id="main-message-input"
+            v-model="messageContent"
+            type="text"
+            placeholder="Input Message"
+            required
+          ></b-form-input>
+        </b-form-group>
+        <b-button type="submit" variant="primary" @click="sendMessage">Submit</b-button>
+        <!-- <button @click="sendMessage">Send Test Message</button> -->
       </div>
     </b-sidebar>
   </div>
@@ -39,7 +67,11 @@ export default {
           'sender': this.getUsername,
           'content': this.messageContent
         }
-        MessengerService.createMessage(payload)
+        MessengerService.createMessage(payload);
+        this.messageContent = '';
+      },
+      setMessageColor(sender) {
+        return sender == this.getUsername ? 'primary' : 'success'
       }
     }
 }

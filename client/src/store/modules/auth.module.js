@@ -56,10 +56,16 @@ export const authentication = {
             commit('setAuthStatus', true);
             localStorage.setItem('user', JSON.stringify(user));
         },
-        verifyUserToken({ dispatch }, user) {
+        verifyUserToken({ commit, dispatch }, user) {
             // Called on app load / page load from initialize auth action
             // Attempts to verify a user when a token is discovered, but is invalid (expired)
             return AuthenticationService.verifyUser(user).then(
+                response => {
+                    // If the user is returned from the API as a valid user - update state / local storage
+                    console.log('User Token Valid...Response:', response);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    commit('setAuthStatus', true);
+                },
                 error => {
                     // If the user is not validated by the API - dispatch a token refresh command
                     console.log('Error:', error);
@@ -67,13 +73,7 @@ export const authentication = {
                     
                     // localStorage.removeItem('user');
                     // commit('setAuthStatus', false);
-                },
-                // response => {
-                //     // If the user is returned from the API as a valid user - update state / local storage
-                //     console.log('User Token Valid...Response:', response);
-                //     localStorage.setItem('user', JSON.stringify(user))
-                //     commit('setAuthStatus', true);
-                // },
+                }
             )
         },
         refreshUserToken({ commit }, user) {
