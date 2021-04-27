@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-import datetime
+import datetime, os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     # Third Party Applications
     'rest_framework',
     'corsheaders',
+    'channels',
     # Local Applications
     'users.apps.UsersConfig',
-    'profiles.apps.ProfilesConfig'
+    'profiles.apps.ProfilesConfig',
+    'messenger.apps.MessengerConfig'
 ]
 
 MIDDLEWARE = [
@@ -75,6 +77,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'server.wsgi.application'
+ASGI_APPLICATION = 'server.routing.application'
 
 
 # Database
@@ -144,7 +147,18 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=50),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     'USER_ID_CLAIM': 'id',
+}
+
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [REDIS_URL],
+        },
+    },
 }

@@ -22,7 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        exclude = ["id", "is_admin", "is_active", "is_staff", "is_superuser", "password", "groups", "user_permissions"]
+        exclude = ["is_admin", "is_active", "is_staff", "is_superuser", "password", "groups", "user_permissions"]
 
 class LogInSerializer(TokenObtainPairSerializer):
 

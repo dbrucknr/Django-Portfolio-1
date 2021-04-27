@@ -63,16 +63,18 @@ export const authentication = {
                 response => {
                     // If the user is returned from the API as a valid user - update state / local storage
                     console.log('User Token Valid...Response:', response);
-                    localStorage.setItem('user', JSON.stringify(user))
+                    localStorage.setItem('user', JSON.stringify(user));
                     commit('setAuthStatus', true);
                 },
                 error => {
                     // If the user is not validated by the API - dispatch a token refresh command
                     console.log('Error:', error);
-                    dispatch('refreshUserToken', user)
+                    dispatch('refreshUserToken', user);
+                    
                     // localStorage.removeItem('user');
                     // commit('setAuthStatus', false);
-                })
+                }
+            )
         },
         refreshUserToken({ commit }, user) {
             // Called when verifyUserToken's Authentication services recieves an error response from backend 
